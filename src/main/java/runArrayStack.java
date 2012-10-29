@@ -7,9 +7,9 @@ public class runArrayStack {
 		
 		System.out.println("Starting run of ArrayStack");
 		
-		myStack.push(2);
-		myStack.push(4);
-		myStack.push(8);
+		myStack.push(new Integer(2));
+		myStack.push(new Integer(4));
+		myStack.push(new Integer(8));
 
 		System.out.println(myStack.size());
 		
