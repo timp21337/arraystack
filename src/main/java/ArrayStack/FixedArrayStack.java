@@ -26,7 +26,6 @@ public class FixedArrayStack implements Stack{
   return tos+1;
  }
  public boolean isEmpty(){
-   System.err.println("tos:"+tos);
   return (tos<0);
  }
  public void push(Object e) throws StackFullException{
@@ -49,13 +48,15 @@ public class FixedArrayStack implements Stack{
   return e;
  }
  public Object atPosition(int i) throws StackOutOfScopeException{   
-   if (i>tos)
-      throw new StackOutOfScopeException("Attempt to go beyond top of stack");
+   if(i < 1)
+     throw new IllegalArgumentException("Stack position must be greater than one.");
+   if (i > (tos + 1))
+      throw new StackOutOfScopeException("Attempt to go beyond top of stack (" + i + ">" + tos + ")");
    else return S[i-1];
  }
  public String toString(){
   String Sout = new String();
-  for (int i=1; i<size(); i++)
+  for (int i=0; i<size(); i++)
    Sout = Sout + S[i].toString() + " ";
   return Sout;
  }

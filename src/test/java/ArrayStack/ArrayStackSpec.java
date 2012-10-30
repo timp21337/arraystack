@@ -3,6 +3,7 @@ package ArrayStack;
 import jdslcomp.simple.api.Stack;
 import jdslcomp.simple.api.StackEmptyException;
 import jdslcomp.simple.api.StackFullException;
+import jdslcomp.simple.api.StackOutOfScopeException;
 //JUnit 3
 import junit.framework.TestCase;
 
@@ -29,77 +30,91 @@ public abstract class ArrayStackSpec extends TestCase {
 	}
 
 	public void testOneConstructor() {
-    Stack one = getSizedStack(1);
-    one.push("1");
-    try { 
-     one.push(new Integer(2));
-    } catch (ArrayIndexOutOfBoundsException e) { 
-      fail("Should have bombed with StackFullException"); 
-    } catch (StackFullException e) { 
-      e = null; // expected
-    }
+    Stack s = getSizedStack(1);
+    exerciseSized(s, 1);
 	}
-
   public void testThreeConstructor() {
-    Stack one = getSizedStack(3);
-    one.push("1");
-    one.push("2");
-    one.push("3");
-    try { 
-     one.push(new Integer(2));
-    } catch (ArrayIndexOutOfBoundsException e) { 
-      fail("Should have bombed with StackFullException"); 
-    } catch (StackFullException e) { 
-      e = null; // expected
-    }
+    Stack s = getSizedStack(3);
+    exerciseSized(s, 3);
   }
-  
   public void testCapacityConstructor() {
-    Stack one = getSizedStack(ArrayStack.CAPACITY);
-    exerciseSized(one, ArrayStack.CAPACITY);
+    Stack s = getSizedStack(ArrayStack.CAPACITY);
+    exerciseSized(s, ArrayStack.CAPACITY);
   }
   public void testDefaultConstructor() {
-    Stack one = getDefaultStack();
-    exerciseSized(one, ArrayStack.CAPACITY);
+    Stack s = getDefaultStack();
+    exerciseSized(s, ArrayStack.CAPACITY);
   }
 
-  private void exerciseSized(Stack one, int size) {
+  private void exerciseSized(Stack s, int size) {
+    assertTrue(s.isEmpty());
+    assertEquals("", s.toString());
+    try { 
+      s.top();
+    } catch (StackEmptyException e) { 
+      e = null;
+    }
+    String expected = "";
     for (int i = 0; i < size; i++) { 
-      one.push(new Integer(i));
+      s.push(new Integer(i));
+      expected += i + " ";
+      assertEquals(expected, s.toString());
+      assertFalse(s.isEmpty());
+      assertEquals(new Integer(i), s.top());
+      if (s instanceof ArrayStack) {
+        assertEquals(s.top(),((ArrayStack)s).atPosition(i + 1));
+        try {
+          ((ArrayStack)s).atPosition(i + 2);
+        } catch (StackOutOfScopeException e) { 
+          e = null;
+        }
+        try {
+          ((ArrayStack)s).atPosition(0);
+        } catch (IllegalArgumentException e) { 
+          e = null;
+        } catch (ArrayIndexOutOfBoundsException e) { 
+          fail(failMessage(e)); // bug
+        }
+      } else {
+        assertEquals(s.top(),((FixedArrayStack)s).atPosition(i + 1));   
+        try {
+          ((FixedArrayStack)s).atPosition(i + 2);
+        } catch (StackOutOfScopeException e) { 
+          e = null;
+        }
+        try {
+          ((FixedArrayStack)s).atPosition(0);
+        } catch (IllegalArgumentException e) { 
+          e = null;
+        } catch (ArrayIndexOutOfBoundsException e) { 
+          fail(failMessage(e)); // bug
+        }
+      }
     }
     try { 
-     one.push("breaker");
+     s.push("breaker");
     } catch (ArrayIndexOutOfBoundsException e) { 
       fail("Should have bombed with StackFullException"); 
     } catch (StackFullException e) { 
       e = null; // expected
     }
+
     for (int i = 0; i < size; i++) { 
-      one.pop();
+      s.pop();
     }
     try { 
-      one.pop();
+      s.pop();
      } catch (ArrayIndexOutOfBoundsException e) { 
        fail("Should have bombed with StackFullException"); 
      } catch (StackEmptyException e) { 
        e = null; // expected
-     }
-    
+     } 
   }
-  
-  
-  
-
-  public void testPush() {
-		Stack myStack = getSizedStack(20);
-		myStack.push(new Integer(2));
-	}
-
   
   abstract Stack getDefaultStack();
   abstract Stack getSizedStack(int size);
   
-  private String failMessage(NegativeArraySizeException e) {
+  private String failMessage(Exception e) {
     return e.getClass().getName() + (e.getMessage() == null ? "" : ":" + e.getMessage());
   }
 }
