@@ -1,17 +1,15 @@
 package ArrayStack;
 
-import jdslcomp.simple.api.Stack;
-
 public class FixedArrayStackTest extends ArrayStackSpec {
 
   @Override
-  Stack getDefaultStack() {
-    return new FixedArrayStack();
+  Sut getDefaultStack() {
+    return new Sut(new FixedArrayStack());
   }
 
   @Override
-  Stack getSizedStack(int size) {
-    return new FixedArrayStack(size);
+  Sut getSizedStack(int size) {
+    return new Sut(new FixedArrayStack(size));
   }
 
 }
