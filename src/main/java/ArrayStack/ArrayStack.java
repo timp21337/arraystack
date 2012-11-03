@@ -37,12 +37,6 @@ public class ArrayStack implements Stack {
     S[tos] = e;
   }
 
-  public Object top() throws StackEmptyException {
-    if (isEmpty())
-      throw new StackEmptyException("Call to top when stack isEmpty()");
-    return S[tos];
-  }
-
   public Object pop() throws StackEmptyException {
     if (isEmpty())
       throw new StackEmptyException("Call to pop when stack isEmpty()");
@@ -50,6 +44,12 @@ public class ArrayStack implements Stack {
     S[tos] = null;
     tos--;
     return e;
+  }
+
+  public Object top() throws StackEmptyException {
+    if (isEmpty())
+      throw new StackEmptyException("Call to top when stack isEmpty()");
+    return S[tos];
   }
 
   public Object atPosition(int i) throws StackOutOfScopeException {
