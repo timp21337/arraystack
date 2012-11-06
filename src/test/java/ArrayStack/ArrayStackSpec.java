@@ -100,7 +100,7 @@ public abstract class ArrayStackSpec extends TestCase {
     exerciseSized(s, ArrayStack.CAPACITY);
   }
 
-  public void IGNOREFORSPEEDtestMaxConstructor() {
+  public void testMaxConstructor() {
     Sut s = getSizedStack(Integer.MAX_VALUE);
     exerciseSized(s, Integer.MAX_VALUE);
   }
@@ -248,14 +248,14 @@ public abstract class ArrayStackSpec extends TestCase {
     } catch (StackFullException e) { 
       e = null;
     }
-    assertEquals("", s.toString());
+    assertEquals("1", s.toString());
     try{
       s.top();
-   } catch(StackEmptyException e) { 
-     e = null;
-   }
-    assertEquals(0, s.size());
-    assertTrue(s.isEmpty());
+    } catch(StackEmptyException e) { 
+      e = null;
+    }
+    assertEquals(1, s.size());
+    assertFalse(s.isEmpty());
 
   }
 
