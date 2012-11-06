@@ -70,7 +70,7 @@ public class FixedArrayStack implements Stack {
     String Sout = new String();
     for (int i = 0; i < size(); i++)
       Sout = Sout + S[i].toString() + " ";
-    return Sout;
+    return Sout.trim();
   }
 
 }
