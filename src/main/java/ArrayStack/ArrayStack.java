@@ -22,14 +22,6 @@ public class ArrayStack implements Stack {
     S = new Object[cap];
   }
 
-  public int size() {
-    return tos + 1;
-  }
-
-  public boolean isEmpty() {
-    return (tos < 0);
-  }
-
   public void push(Object e) throws StackFullException {
     if (size() == CAPACITY)
       throw new StackFullException("Push to a full stack");
@@ -44,6 +36,14 @@ public class ArrayStack implements Stack {
     S[tos] = null;
     tos--;
     return e;
+  }
+
+  public int size() {
+    return tos + 1;
+  }
+
+  public boolean isEmpty() {
+    return (tos < 0);
   }
 
   public Object top() throws StackEmptyException {
