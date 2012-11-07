@@ -4,32 +4,43 @@ package ArrayStack;
 import junit.framework.TestCase;
 
 public class VMLimitsTest extends TestCase {
-  int MAX_DEPTH = 14;
   int depth = 0;
   
   public void testChop() { 
-    between(1, Integer.MAX_VALUE);
+    // -Xmx=256m
+    //assertEquals(33554433, between(1, Integer.MAX_VALUE));
+    // -Xmx=512m
+    //assertEquals(44691133, between(1, Integer.MAX_VALUE));
+    // -Xmx=1024m
+    //assertEquals(178908861, between(1, Integer.MAX_VALUE));
+    // -Xmx=2048m
+    //assertEquals(357871293, between(1, Integer.MAX_VALUE));
+    // -Xmx=2000m
+    //assertEquals(349482685, between(1, Integer.MAX_VALUE));
+    // -Xmx=1900m
+    //assertEquals(332000957, between(1, Integer.MAX_VALUE));
+    // -Xmx=1950m
+    //assertEquals(340733629, between(1, Integer.MAX_VALUE));
+    // -Xmx=1960m
+    //assertEquals(342486717, between(1, Integer.MAX_VALUE));
+    // -Xmx=1966m
+    //assertEquals(343535293, between(1, Integer.MAX_VALUE));
+      assertEquals(343535293, between(1, Integer.MAX_VALUE));
+    assertEquals(31, depth);
   }
   
-  int between(int from, int to) {
+  public int between(int from, int to) {
+    if ((to - from) <= 1) 
+      return (to);
     depth++;
-    if (from == to) 
-      return (to);
-    int h = (to - from) /2;
-    if (h == 1) 
-      return (to);
-    int i = from + h;
-//    System.err.print("" + (from) + ", " + (to) +  ", " + i);
-//    System.err.print("" + (i) + ", " + Math.log(Math.log10(new Double(i))));
-    System.err.print("['" + depth + "'," + (i) );
+    int i = from + ((to - from) /2);
+    System.out.print("['" + depth + "'," + (i) + "]," );
     try { 
       Object[] a = new Object[i];
-      System.err.println("],");
-      a = null;
+      a[1]="1";
+      a=null;
       return (between(i, to));
     } catch (OutOfMemoryError e) {
-      System.err.println("],");
-      e = null;
       return (between(from, i));
     }      
   }
