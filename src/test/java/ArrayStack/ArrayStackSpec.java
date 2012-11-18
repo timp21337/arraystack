@@ -6,8 +6,14 @@ import jdslcomp.simple.api.StackFullException;
 import jdslcomp.simple.api.StackOutOfScopeException;
 import junit.framework.TestCase;
 
+/**
+ * Tests for the ArrayStack. 
+ * 
+ * @author timp
+ */
 public abstract class ArrayStackSpec extends TestCase {
-  
+
+  /** Our ArrayStack has an additional method. */
   public interface InspectableStack extends Stack {
     Object atPosition(int position);
   }
@@ -64,6 +70,7 @@ public abstract class ArrayStackSpec extends TestCase {
     }
   }
 
+  // Creation Tests
   public void testNegativeSizeConstructor() {
     try {
       getSizedStack(-1);
@@ -175,7 +182,7 @@ public abstract class ArrayStackSpec extends TestCase {
     assertEquals("1", s.top());
     assertEquals(1, s.size());
     assertFalse(s.isEmpty());
-    assertEquals("1",s.atPosition(1));
+    assertEquals("1", s.atPosition(1));
   }
 
   public void testPopEmptying() {
@@ -183,9 +190,9 @@ public abstract class ArrayStackSpec extends TestCase {
     s.push("1");
     s.pop();
     assertEquals("", s.toString());
-    try{
-       s.top();
-    } catch(StackEmptyException e) { 
+    try {
+      s.top();
+    } catch (StackEmptyException e) {
       e = null;
     }
     assertEquals(0, s.size());
@@ -200,8 +207,8 @@ public abstract class ArrayStackSpec extends TestCase {
     assertEquals("2", s.top());
     assertEquals(2, s.size());
     assertFalse(s.isEmpty());
-    assertEquals("1",s.atPosition(1));
-    assertEquals("2",s.atPosition(2));
+    assertEquals("1", s.atPosition(1));
+    assertEquals("2", s.atPosition(2));
   }
 
   public void testPopCentral() {
@@ -213,7 +220,7 @@ public abstract class ArrayStackSpec extends TestCase {
     assertEquals("1", s.top());
     assertEquals(1, s.size());
     assertFalse(s.isEmpty());
-    assertEquals("1",s.atPosition(1));
+    assertEquals("1", s.atPosition(1));
   }
 
   public void testPushFilling() {
@@ -223,7 +230,7 @@ public abstract class ArrayStackSpec extends TestCase {
     assertEquals("1", s.top());
     assertEquals(1, s.size());
     assertFalse(s.isEmpty());
-    assertEquals("1",s.atPosition(1));
+    assertEquals("1", s.atPosition(1));
   }
 
   public void testPopFromFull() {
@@ -231,11 +238,11 @@ public abstract class ArrayStackSpec extends TestCase {
     s.push("1");
     s.pop();
     assertEquals("", s.toString());
-    try{
+    try {
       s.top();
-   } catch(StackEmptyException e) { 
-     e = null;
-   }
+    } catch (StackEmptyException e) {
+      e = null;
+    }
     assertEquals(0, s.size());
     assertTrue(s.isEmpty());
   }
@@ -243,20 +250,84 @@ public abstract class ArrayStackSpec extends TestCase {
   public void testPushToFull() {
     Sut s = getSizedStack(1);
     s.push("1");
-    try { 
+    try {
       s.push("2");
-    } catch (StackFullException e) { 
+    } catch (StackFullException e) {
       e = null;
     }
     assertEquals("1", s.toString());
-    try{
+    try {
       s.top();
-    } catch(StackEmptyException e) { 
+    } catch (StackEmptyException e) {
       e = null;
     }
     assertEquals(1, s.size());
     assertFalse(s.isEmpty());
+  }
 
+  Sut as = getSizedStack(200);
+  static boolean finished;
+  static Error firstError;
+
+  public void testThreadedAccess() throws Exception {
+    finished = false;
+    firstError = null;
+    for (int i = 0; i < 100; i++)
+      new PushPopper().start();
+    while(!finished)
+     Thread.sleep(10);
+    if (firstError != null)
+      throw firstError;
+  }
+  public void testUnsafeThreadedAccess() throws Exception {
+    finished = false;
+    firstError = null;
+    for (int i = 0; i < 100; i++)
+      new UnsafePushPopper().start();
+    while(!finished)
+     Thread.sleep(10);
+    if (firstError != null)
+      throw firstError;
+  }
+
+  /** Thread safe, synchronized on stack. */
+  private class PushPopper extends Thread {
+    public void run() {
+      for (int i = 0; i < 100; i++) {
+        synchronized (as) {
+          as.push("A");
+          try {
+            assertEquals("A", as.pop());
+            assertTrue(valid(as));
+          } catch (Throwable t) {
+            firstError = new Error("Failed on iteration " + i, t);
+            finished = true;
+            Thread.currentThread().notifyAll();
+            throw firstError;
+          }
+        }
+      }
+      finished = true;
+    }
+  }
+
+  
+  /** Thread unsafe, not synchronized on stack. */
+  private class UnsafePushPopper extends Thread {
+    public void run() {
+      for (int i = 0; i < 2000; i++) {
+        as.push("A");
+        try {
+          assertEquals("A", as.pop());
+          assertTrue(valid(as));
+        } catch (Throwable t) {
+          firstError = new Error("Failed on iteration " + i, t);
+          finished = true;
+          throw firstError;
+        }
+      }
+      finished = true;
+    }
   }
 
   abstract Sut getDefaultStack();
@@ -266,5 +337,13 @@ public abstract class ArrayStackSpec extends TestCase {
   private String failMessage(Exception e) {
     return e.getClass().getName()
         + (e.getMessage() == null ? "" : ":" + e.getMessage());
+  }
+
+  public boolean valid(Sut s) {
+    for (int i = 0; i < s.size(); i++) {
+      if (s.atPosition(i + 1) == null)
+        return false;
+    }
+    return true;
   }
 }
