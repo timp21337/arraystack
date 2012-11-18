@@ -25,14 +25,14 @@ public class FixedArrayStack implements Stack {
     S = new Object[cap];
   }
 
-  public void push(Object e) throws StackFullException {
+  public synchronized void push(Object e) throws StackFullException {
     if (size() == capacity)
       throw new StackFullException("Push to a full stack");
     tos++;
     S[tos] = e;
   }
 
-  public Object pop() throws StackEmptyException {
+  public synchronized Object pop() throws StackEmptyException {
     if (isEmpty())
       throw new StackEmptyException("Call to pop when stack isEmpty()");
     Object e = S[tos];
@@ -61,7 +61,7 @@ public class FixedArrayStack implements Stack {
           "Stack position must be greater than one.");
     if (i > (tos + 1))
       throw new StackOutOfScopeException("Attempt to go beyond top of stack ("
-          + i + ">" + tos + ")");
+          + i + ">" + (tos + 1) + ")");
     else
       return S[i - 1];
   }
