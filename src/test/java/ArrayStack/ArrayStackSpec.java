@@ -51,7 +51,8 @@ public abstract class ArrayStackSpec extends TestCase {
     }
 
     /**
-     * Machinery to work around method not included in Stack interface.
+     * Machinery to work around method not included 
+     * in Stack interface.
      */
     @Override
     public Object atPosition(int position) {
@@ -165,6 +166,39 @@ public abstract class ArrayStackSpec extends TestCase {
       e = null; // expected
     }
   }
+  
+  // Argument Tests
+  
+  public void testPushNull() throws Exception {
+    Sut s = getDefaultStack();
+    s.push(null);
+    assertEquals(1, s.size());
+    assertNull(s.top());
+    assertNull(s.pop());
+    assertEquals(0, s.size());
+  }
+  
+  // Fails with ArrayIndexOutOfBounds
+  public void testBadPosition() throws Exception { 
+    Sut s = getDefaultStack();
+    try {
+      s.atPosition(-1);  
+    } catch (IllegalArgumentException e) { 
+      e = null; //expected
+    }
+    try {
+      s.atPosition(0);
+    } catch (IllegalArgumentException e) { 
+      e = null; //expected
+    }
+    try {
+      s.atPosition(1);
+    } catch (StackOutOfScopeException e) { 
+      e = null; //expected
+    }
+  }
+  
+  // State Transition Tests
 
   public void testPopFromEmpty() {
     Sut s = getDefaultStack();
@@ -265,6 +299,8 @@ public abstract class ArrayStackSpec extends TestCase {
     assertFalse(s.isEmpty());
   }
 
+  // Thread Safety Tests
+  
   Sut as = getSizedStack(200);
   static boolean finished;
   static Error firstError;
