@@ -108,9 +108,14 @@ public abstract class ArrayStackSpec extends TestCase {
     exerciseSized(s, ArrayStack.CAPACITY);
   }
 
+  // Possible design flaw, 
   public void testMaxConstructor() {
-    Sut s = getSizedStack(Integer.MAX_VALUE);
-    exerciseSized(s, Integer.MAX_VALUE);
+    try {
+      getSizedStack(Integer.MAX_VALUE);
+      fail("Should have bombed");
+    } catch (OutOfMemoryError e) { 
+      e = null; // expected
+    }
   }
 
   public void testDefaultConstructor() {
@@ -315,6 +320,7 @@ public abstract class ArrayStackSpec extends TestCase {
     if (firstError != null)
       throw firstError;
   }
+  // Test fails, but is marked as unsafe usage
   public void testUnsafeThreadedAccess() throws Exception {
     finished = false;
     firstError = null;
