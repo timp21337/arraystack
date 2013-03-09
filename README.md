@@ -3,4 +3,4 @@ arraystack
 
 Testing Exercise
 
-Install with mvn install
+Install with mvn install, expect test failures!
