@@ -3,4 +3,8 @@
 .externalToolBuilders
 .settings
 target
+TestReport.aux
+TestReport.log
+TestReport.out
+TestReport.synctex.gz
 
